@@ -23,19 +23,27 @@ describe('TeacherService', () => {
     expect(service).toBeTruthy();
   });
 
-  it("devrait appeler GET api/teacher (all)", () => {
-    const mock: Teacher[] = [{ id: 1, firstName: 'Edouard', lastName: 'Plantevin' } as Teacher];
-    service.all().subscribe((response) => expect(response).toEqual(mock));
+  it('devrait retourner un Observable<Teacher[]> pour all()', () => {
+    const mockTeachers: Teacher[] = [{ id: 1, firstName: 'Edouard', lastName: 'Plantevin' } as Teacher];
+
+    service.all().subscribe((teachers) => {
+      expect(teachers).toEqual(mockTeachers);
+    });
+
     const req = httpMock.expectOne('api/teacher');
     expect(req.request.method).toBe('GET');
-    req.flush(mock);
+    req.flush(mockTeachers);
   });
 
-  it('devrait appeler GET api/teacher/:id (detail)', () => {
-    const mock = { id: 1 } as Teacher;
-    service.detail('1').subscribe((response) => expect(response).toEqual(mock));
+  it('devrait retourner un Observable<Teacher> pour detail()', () => {
+    const mockTeacher: Teacher = { id: 1, firstName: 'Edouard', lastName: 'Plantevin' } as Teacher;
+
+    service.detail('1').subscribe((teacher) => {
+      expect(teacher).toEqual(mockTeacher);
+    });
+
     const req = httpMock.expectOne('api/teacher/1');
     expect(req.request.method).toBe('GET');
-    req.flush(mock);
+    req.flush(mockTeacher);
   });
 });
