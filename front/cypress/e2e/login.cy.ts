@@ -1,5 +1,5 @@
 describe('Login spec', () => {
-  it('Login successfull', () => {
+  it('devrait permettre la connexion avec des identifiants valides', () => {
     cy.visit('/login')
 
     cy.intercept('POST', '/api/auth/login', {
@@ -24,4 +24,19 @@ describe('Login spec', () => {
 
     cy.url().should('include', '/sessions')
   })
+
+  it('devrait afficher une erreur avec des identifiants invalides', () => {
+    cy.visit('/login')
+
+    cy.intercept('POST', '/api/auth/login', {
+      statusCode: 401,
+      body: { error: 'Login failed' }
+    })
+
+    cy.get('input[formControlName=email]').type("test@test.com")
+    cy.get('input[formControlName=password]').type(`${"wrongpassword"}{enter}{enter}`)
+
+    cy.contains('An error occurred').should('be.visible')
+  })
+
 });
