@@ -18,7 +18,7 @@ describe('Session Form Component', () => {
       }
     }).as('createSessionRequest');
 
-    cy.loginAsAdmin();
+    cy.login(true);
 
     cy.contains('Create').click();
 

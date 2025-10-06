@@ -19,7 +19,7 @@ describe('Session Detail Component', () => {
       }
     });
     cy.loadTeachers();
-    cy.loginAsAdmin();
+    cy.login(true);
 
     cy.url().should('include', '/sessions');
 

@@ -1,7 +1,7 @@
 describe('Liste des sessions', () => {
   it('devrait afficher la liste des sessions', () => {
     cy.loadSessions();
-    cy.loginAsAdmin();
+    cy.login(true);
 
     cy.contains('Yoga Session').should('be.visible');
   });

@@ -4,31 +4,40 @@
 
 declare namespace Cypress {
   interface Chainable<Subject = any> {
-    loginAsAdmin(): typeof loginAsAdmin;
+    login(isAdmin?: boolean): typeof login;
     loadSessions(): typeof loadSessions;
     loadTeachers(): typeof loadTeachers;
   }
 }
 
-function loginAsAdmin(): void {
+function login(isAdmin: boolean = true): void {
+  const userData = {
+    token: 'fake-jwt-token',
+    type: 'Bearer',
+    id: 1,
+    username: 'admin',
+    firstName: 'Admin',
+    lastName: 'User',
+    admin: isAdmin
+  }
+
   cy.intercept('POST', '**/api/auth/login', {
     statusCode: 200,
-    body: {
-      id: 1,
-      username: 'admin',
-      firstName: 'Admin',
-      lastName: 'User',
-      admin: true
-    },
+    body: userData,
   }).as('loginRequest');
 
   cy.visit('/login');
-
   cy.get('input[formControlName=email]').type("test@test.com");
   cy.get('input[formControlName=password]').type("password");
   cy.get('button[type="submit"]').click();
 
   cy.wait('@loginRequest');
+
+  // Stocker les informations de session dans le localStorage pour simuler la persistance
+  cy.window().then((win) => {
+    win.localStorage.setItem('session', JSON.stringify(userData));
+  });
+
   cy.url().should('include', '/sessions');
 }
 
@@ -61,6 +70,6 @@ function loadTeachers(): void {
   }).as('teachersRequest');
 }
 
-Cypress.Commands.add('loginAsAdmin', loginAsAdmin);
+Cypress.Commands.add('login', login);
 Cypress.Commands.add('loadSessions', loadSessions);
 Cypress.Commands.add('loadTeachers', loadTeachers);
