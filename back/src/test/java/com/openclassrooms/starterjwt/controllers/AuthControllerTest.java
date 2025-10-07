@@ -37,7 +37,7 @@ public class AuthControllerTest {
     @Test
     public void testLoginSuccess() throws Exception {
         // Given
-        String email = "edouard.plantevin@email.com";
+        String email = "user2@test.com";
         LoginRequest loginRequest = new LoginRequest();
         loginRequest.setEmail(email);
         loginRequest.setPassword("password");
@@ -50,8 +50,8 @@ public class AuthControllerTest {
                 .andExpect(jsonPath("$.token").exists())
                 .andExpect(jsonPath("$.type").value("Bearer"))
                 .andExpect(jsonPath("$.username").value(email))
-                .andExpect(jsonPath("$.firstName").value("Edouard"))
-                .andExpect(jsonPath("$.lastName").value("Plantevin"))
+                .andExpect(jsonPath("$.firstName").value("user_firstname_2"))
+                .andExpect(jsonPath("$.lastName").value("user_lastname_2"))
                 .andExpect(jsonPath("$.admin").value(false))
                 .andDo(result -> {
                     String response = result.getResponse().getContentAsString();
@@ -83,7 +83,7 @@ public class AuthControllerTest {
     void testRegisterWithDuplicateEmail() throws Exception {
         // Given
         SignupRequest signupRequest = new SignupRequest();
-        signupRequest.setEmail("edouard.plantevin@email.com"); // Email déjà existant
+        signupRequest.setEmail("user2@test.com"); // Email déjà existant
         signupRequest.setFirstName("Test");
         signupRequest.setLastName("User");
         signupRequest.setPassword("password123");

@@ -4,9 +4,9 @@
 -- Insertion des utilisateurs de test
 INSERT INTO USERS (id, email, first_name, last_name, password, admin, created_at, updated_at)
 VALUES 
-    (1, 'yoga@studio.com', 'Admin', 'Admin', '$2a$12$1aX8Ldlhto/wk2ds5ju9UOBbqlbtWpOKayi6pqTOVgzfuSYFo55EC', true, NOW(), NOW()),
-    (2, 'edouard.plantevin@email.com', 'Edouard', 'Plantevin', '$2a$12$1aX8Ldlhto/wk2ds5ju9UOBbqlbtWpOKayi6pqTOVgzfuSYFo55EC', false, NOW(), NOW()),
-    (3, 'juliette.plantevin@email.com', 'Juliette', 'Plantevin', '$2a$12$1aX8Ldlhto/wk2ds5ju9UOBbqlbtWpOKayi6pqTOVgzfuSYFo55EC', false, NOW(), NOW());
+    (1, 'user1@test.com', 'user_firstname_1', 'user_lastname_1', '$2a$12$1aX8Ldlhto/wk2ds5ju9UOBbqlbtWpOKayi6pqTOVgzfuSYFo55EC', true, NOW(), NOW()),
+    (2, 'user2@test.com', 'user_firstname_2', 'user_lastname_2', '$2a$12$1aX8Ldlhto/wk2ds5ju9UOBbqlbtWpOKayi6pqTOVgzfuSYFo55EC', false, NOW(), NOW()),
+    (3, 'user3@test.com', 'user_firstname_3', 'user_lastname_3', '$2a$12$1aX8Ldlhto/wk2ds5ju9UOBbqlbtWpOKayi6pqTOVgzfuSYFo55EC', false, NOW(), NOW());
 
 -- Insertion des professeurs de test
 INSERT INTO TEACHERS (id, first_name, last_name, created_at, updated_at)
