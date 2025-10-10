@@ -95,4 +95,111 @@ public class AuthControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Error: Email is already taken!"));
     }
+
+    @Test
+    void testLoginWithBadCredentials() throws Exception {
+        // Given
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setEmail("user2@test.com");
+        loginRequest.setPassword("wrongpassword");
+
+        // When & Then
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void testLoginWithMissingEmail() throws Exception {
+        // Given
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setPassword("password");
+        // Email manquant
+
+        // When & Then
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testLoginWithMissingPassword() throws Exception {
+        // Given
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setEmail("user2@test.com");
+        // Password manquant
+
+        // When & Then
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testRegisterWithMissingEmail() throws Exception {
+        // Given
+        SignupRequest signupRequest = new SignupRequest();
+        // Email manquant
+        signupRequest.setFirstName("Test");
+        signupRequest.setLastName("User");
+        signupRequest.setPassword("password123");
+
+        // When & Then
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(signupRequest)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testRegisterWithMissingFirstName() throws Exception {
+        // Given
+        SignupRequest signupRequest = new SignupRequest();
+        signupRequest.setEmail("newuser@test.com");
+        // FirstName manquant
+        signupRequest.setLastName("User");
+        signupRequest.setPassword("password123");
+
+        // When & Then
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(signupRequest)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testRegisterWithMissingLastName() throws Exception {
+        // Given
+        SignupRequest signupRequest = new SignupRequest();
+        signupRequest.setEmail("newuser@test.com");
+        signupRequest.setFirstName("Test");
+        // LastName manquant
+        signupRequest.setPassword("password123");
+
+        // When & Then
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(signupRequest)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testRegisterWithMissingPassword() throws Exception {
+        // Given
+        SignupRequest signupRequest = new SignupRequest();
+        signupRequest.setEmail("newuser@test.com");
+        signupRequest.setFirstName("Test");
+        signupRequest.setLastName("User");
+        // Password manquant
+
+        // When & Then
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(signupRequest)))
+                .andExpect(status().isBadRequest());
+    }
+
 }
