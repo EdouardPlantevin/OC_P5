@@ -144,4 +144,132 @@ public class SessionControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    void createSession_WithMissingName_ShouldReturnBadRequest() throws Exception {
+        // Given
+        SessionDto sessionDto = new SessionDto();
+        // Name manquant
+        sessionDto.setDescription("Description de la session");
+        sessionDto.setDate(new Date());
+        sessionDto.setTeacher_id(1L);
+
+        // When & Then
+        mockMvc.perform(post("/api/session")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(sessionDto)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void createSession_WithMissingDescription_ShouldReturnBadRequest() throws Exception {
+        // Given
+        SessionDto sessionDto = new SessionDto();
+        sessionDto.setName("Nouvelle Session");
+        // Description manquante
+        sessionDto.setDate(new Date());
+        sessionDto.setTeacher_id(1L);
+
+        // When & Then
+        mockMvc.perform(post("/api/session")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(sessionDto)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void createSession_WithMissingDate_ShouldReturnBadRequest() throws Exception {
+        // Given
+        SessionDto sessionDto = new SessionDto();
+        sessionDto.setName("Nouvelle Session");
+        sessionDto.setDescription("Description de la session");
+        // Date manquante
+        sessionDto.setTeacher_id(1L);
+
+        // When & Then
+        mockMvc.perform(post("/api/session")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(sessionDto)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void createSession_WithMissingTeacherId_ShouldReturnBadRequest() throws Exception {
+        // Given
+        SessionDto sessionDto = new SessionDto();
+        sessionDto.setName("Nouvelle Session");
+        sessionDto.setDescription("Description de la session");
+        sessionDto.setDate(new Date());
+        // Teacher_id manquant
+
+        // When & Then
+        mockMvc.perform(post("/api/session")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(sessionDto)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void updateSession_WithMissingName_ShouldReturnBadRequest() throws Exception {
+        // Given
+        SessionDto sessionDto = new SessionDto();
+        // Name manquant
+        sessionDto.setDescription("Description modifiée");
+        sessionDto.setDate(new Date());
+        sessionDto.setTeacher_id(1L);
+
+        // When & Then
+        mockMvc.perform(put("/api/session/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(sessionDto)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void updateSession_WithMissingDescription_ShouldReturnBadRequest() throws Exception {
+        // Given
+        SessionDto sessionDto = new SessionDto();
+        sessionDto.setName("Session Modifiée");
+        // Description manquante
+        sessionDto.setDate(new Date());
+        sessionDto.setTeacher_id(1L);
+
+        // When & Then
+        mockMvc.perform(put("/api/session/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(sessionDto)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void updateSession_WithMissingDate_ShouldReturnBadRequest() throws Exception {
+        // Given
+        SessionDto sessionDto = new SessionDto();
+        sessionDto.setName("Session Modifiée");
+        sessionDto.setDescription("Description modifiée");
+        // Date manquante
+        sessionDto.setTeacher_id(1L);
+
+        // When & Then
+        mockMvc.perform(put("/api/session/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(sessionDto)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void updateSession_WithMissingTeacherId_ShouldReturnBadRequest() throws Exception {
+        // Given
+        SessionDto sessionDto = new SessionDto();
+        sessionDto.setName("Session Modifiée");
+        sessionDto.setDescription("Description modifiée");
+        sessionDto.setDate(new Date());
+        // Teacher_id manquant
+
+        // When & Then
+        mockMvc.perform(put("/api/session/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(sessionDto)))
+                .andExpect(status().isBadRequest());
+    }
+
 }
