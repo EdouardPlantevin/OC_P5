@@ -3,15 +3,14 @@
   "version": "0.0.0",
   "scripts": {
     "start": "ng serve",
-    "start:coverage": "ng run yoga:serve-coverage",
-    "test": "jest --runInBand",
-    "test:ci": "jest --coverage --runInBand",
+    "test": "jest",
     "test:watch": "jest --watch",
-    "coverage": "jest --coverage && echo \n\njest:/coverage/jest/index.html\n",
     "lint": "ng lint",
+    "e2e": "ng e2e",
+    "e2e:ci": "ng run yoga:e2e-ci",
+    "e2e:coverage": "npx nyc report --reporter=lcov --reporter=text-summary",
     "cypress:open": "cypress open",
-    "cypress:run": "cypress run",
-    "cypress:coverage:html": "npx nyc report --reporter=html --reporter=text-summary"
+    "cypress:run": "cypress run"
   },
   "private": true,
   "dependencies": {
