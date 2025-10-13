@@ -2,64 +2,71 @@ package com.openclassrooms.starterjwt.mapper;
 
 import com.openclassrooms.starterjwt.dto.TeacherDto;
 import com.openclassrooms.starterjwt.models.Teacher;
-import com.openclassrooms.starterjwt.repository.TeacherRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.transaction.annotation.Transactional;
+import org.mapstruct.factory.Mappers;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
-@ExtendWith(SpringExtension.class)
-@Transactional
-@Rollback
-@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:script.sql")
+@ExtendWith(MockitoExtension.class)
 public class TeacherMapperTest {
 
-    @Autowired
     private TeacherMapper teacherMapper;
-
-    @Autowired
-    private TeacherRepository teacherRepository;
-
     private Teacher testTeacher;
     private TeacherDto testTeacherDto;
 
     @BeforeEach
     void setUp() {
-        testTeacher = teacherRepository.findById(1L).orElse(null);
+        teacherMapper = Mappers.getMapper(TeacherMapper.class);
+
+        testTeacher = new Teacher();
+        testTeacher.setId(1L);
+        testTeacher.setLastName("teacher_lastname_1");
+        testTeacher.setFirstName("teacher_firstname_1");
 
         testTeacherDto = new TeacherDto();
         testTeacherDto.setId(1L);
-        testTeacherDto.setFirstName("teacher_firstname_1");
         testTeacherDto.setLastName("teacher_lastname_1");
+        testTeacherDto.setFirstName("teacher_firstname_1");
     }
 
     @Test
-    void toEntity_ShouldMapTeacherDtoToTeacher() {
+    void toDto_WithValidTeacher_ShouldMapCorrectly() {
+        // When
+        TeacherDto result = teacherMapper.toDto(testTeacher);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(testTeacher.getId(), result.getId());
+        assertEquals(testTeacher.getLastName(), result.getLastName());
+        assertEquals(testTeacher.getFirstName(), result.getFirstName());
+    }
+
+    @Test
+    void toEntity_WithValidTeacherDto_ShouldMapCorrectly() {
         // When
         Teacher result = teacherMapper.toEntity(testTeacherDto);
 
         // Then
         assertNotNull(result);
         assertEquals(testTeacherDto.getId(), result.getId());
-        assertEquals(testTeacherDto.getFirstName(), result.getFirstName());
         assertEquals(testTeacherDto.getLastName(), result.getLastName());
+        assertEquals(testTeacherDto.getFirstName(), result.getFirstName());
     }
 
     @Test
     void toDto_WithList_ShouldMapCorrectly() {
         // Given
-        Teacher teacher2 = teacherRepository.findById(2L).orElse(null);
+        Teacher teacher2 = new Teacher();
+        teacher2.setId(2L);
+        teacher2.setLastName("teacher_lastname_2");
+        teacher2.setFirstName("teacher_firstname_2");
+
         List<Teacher> teacherList = Arrays.asList(testTeacher, teacher2);
 
         // When
@@ -77,8 +84,8 @@ public class TeacherMapperTest {
         // Given
         TeacherDto teacherDto2 = new TeacherDto();
         teacherDto2.setId(2L);
-        teacherDto2.setFirstName("teacher_firstname_2");
         teacherDto2.setLastName("teacher_lastname_2");
+        teacherDto2.setFirstName("teacher_firstname_2");
 
         List<TeacherDto> teacherDtoList = Arrays.asList(testTeacherDto, teacherDto2);
 
@@ -90,5 +97,49 @@ public class TeacherMapperTest {
         assertEquals(2, result.size());
         assertEquals(testTeacherDto.getId(), result.get(0).getId());
         assertEquals(teacherDto2.getId(), result.get(1).getId());
+    }
+
+    @Test
+    void toDto_WithNullTeacher_ShouldReturnNull() {
+        // When
+        TeacherDto result = teacherMapper.toDto((Teacher) null);
+
+        // Then
+        assertNull(result);
+    }
+
+    @Test
+    void toEntity_WithNullTeacherDto_ShouldReturnNull() {
+        // When
+        Teacher result = teacherMapper.toEntity((TeacherDto) null);
+
+        // Then
+        assertNull(result);
+    }
+
+    @Test
+    void toDto_WithEmptyList_ShouldReturnEmptyList() {
+        // Given
+        List<Teacher> emptyList = Arrays.asList();
+
+        // When
+        List<TeacherDto> result = teacherMapper.toDto(emptyList);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void toEntity_WithEmptyList_ShouldReturnEmptyList() {
+        // Given
+        List<TeacherDto> emptyList = Arrays.asList();
+
+        // When
+        List<Teacher> result = teacherMapper.toEntity(emptyList);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
     }
 }

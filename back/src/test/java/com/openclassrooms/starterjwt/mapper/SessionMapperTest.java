@@ -4,18 +4,14 @@ import com.openclassrooms.starterjwt.dto.SessionDto;
 import com.openclassrooms.starterjwt.models.Session;
 import com.openclassrooms.starterjwt.models.Teacher;
 import com.openclassrooms.starterjwt.models.User;
-import com.openclassrooms.starterjwt.repository.SessionRepository;
-import com.openclassrooms.starterjwt.repository.TeacherRepository;
-import com.openclassrooms.starterjwt.repository.UserRepository;
+import com.openclassrooms.starterjwt.services.TeacherService;
+import com.openclassrooms.starterjwt.services.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.transaction.annotation.Transactional;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -23,38 +19,61 @@ import java.util.Date;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-@SpringBootTest
-@ExtendWith(SpringExtension.class)
-@Transactional
-@Rollback
-@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:script.sql")
+@ExtendWith(MockitoExtension.class)
 public class SessionMapperTest {
 
-    @Autowired
     private SessionMapper sessionMapper;
-
-    @Autowired
-    private SessionRepository sessionRepository;
+    
+    @Mock
+    private TeacherService teacherService;
+    
+    @Mock
+    private UserService userService;
 
     private Session testSession;
     private SessionDto testSessionDto;
+    private Teacher testTeacher;
+    private User testUser;
 
     @BeforeEach
     void setUp() {
-        testSession = sessionRepository.findById(1L).orElse(null);
+        sessionMapper = new SessionMapperImpl();
+        
+        ReflectionTestUtils.setField(sessionMapper, "teacherService", teacherService);
+        ReflectionTestUtils.setField(sessionMapper, "userService", userService);
+
+        testTeacher = new Teacher();
+        testTeacher.setId(1L);
+        testTeacher.setFirstName("teacher_firstname_1");
+        testTeacher.setLastName("teacher_lastname_1");
+
+        testUser = new User();
+        testUser.setId(1L);
+        testUser.setEmail("user1@test.com");
+        testUser.setFirstName("user_firstname_1");
+        testUser.setLastName("user_lastname_1");
+
+        testSession = new Session();
+        testSession.setId(1L);
+        testSession.setName("Test Session");
+        testSession.setDescription("Test Description");
+        testSession.setDate(new Date());
+        testSession.setTeacher(testTeacher);
+        testSession.setUsers(Arrays.asList(testUser));
 
         testSessionDto = new SessionDto();
         testSessionDto.setId(1L);
-        testSessionDto.setName("Yoga Vinyasa Débutant");
-        testSessionDto.setDescription("Séance de yoga dynamique parfaite pour débuter.");
+        testSessionDto.setName("Test Session");
+        testSessionDto.setDescription("Test Description");
         testSessionDto.setDate(new Date());
         testSessionDto.setTeacher_id(1L);
-        testSessionDto.setUsers(Arrays.asList(1L, 2L));
+        testSessionDto.setUsers(Arrays.asList(1L));
     }
 
     @Test
-    void toDto_ShouldMapSessionToSessionDto() {
+    void toDto_WithValidSession_ShouldMapCorrectly() {
         // When
         SessionDto result = sessionMapper.toDto(testSession);
 
@@ -62,10 +81,19 @@ public class SessionMapperTest {
         assertNotNull(result);
         assertEquals(testSession.getId(), result.getId());
         assertEquals(testSession.getName(), result.getName());
+        assertEquals(testSession.getDescription(), result.getDescription());
+        assertEquals(testSession.getDate(), result.getDate());
+        assertEquals(testSession.getTeacher().getId(), result.getTeacher_id());
+        assertEquals(1, result.getUsers().size());
+        assertEquals(testSession.getUsers().get(0).getId(), result.getUsers().get(0));
     }
 
     @Test
-    void toEntity_ShouldMapSessionDtoToSession() {
+    void toEntity_WithValidSessionDto_ShouldMapCorrectly() {
+        // Given
+        when(teacherService.findById(1L)).thenReturn(testTeacher);
+        when(userService.findById(1L)).thenReturn(testUser);
+
         // When
         Session result = sessionMapper.toEntity(testSessionDto);
 
@@ -73,119 +101,33 @@ public class SessionMapperTest {
         assertNotNull(result);
         assertEquals(testSessionDto.getId(), result.getId());
         assertEquals(testSessionDto.getName(), result.getName());
+        assertEquals(testSessionDto.getDescription(), result.getDescription());
+        assertEquals(testSessionDto.getDate(), result.getDate());
+        assertNotNull(result.getTeacher());
+        assertEquals(testSessionDto.getTeacher_id(), result.getTeacher().getId());
+        assertEquals(1, result.getUsers().size());
+        assertEquals(testSessionDto.getUsers().get(0), result.getUsers().get(0).getId());
+        
+        verify(teacherService).findById(1L);
+        verify(userService).findById(1L);
     }
 
     @Test
-    void toDto_WithList_ShouldMapCorrectly() {
-        // Given
-        List<Session> sessions = Arrays.asList(testSession);
-
+    void toDto_WithNullSession_ShouldReturnNull() {
         // When
-        List<SessionDto> result = sessionMapper.toDto(sessions);
-
-        // Then
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        assertEquals(testSession.getId(), result.get(0).getId());
-        assertEquals(testSession.getName(), result.get(0).getName());
-    }
-
-    @Test
-    void toEntity_WithList_ShouldMapCorrectly() {
-        // Given
-        List<SessionDto> sessionDtos = Arrays.asList(testSessionDto);
-
-        // When
-        List<Session> result = sessionMapper.toEntity(sessionDtos);
-
-        // Then
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        assertEquals(testSessionDto.getId(), result.get(0).getId());
-        assertEquals(testSessionDto.getName(), result.get(0).getName());
-    }
-
-    @Test
-    void toDto_WithEmptyList_ShouldReturnEmptyList() {
-        // Given
-        List<Session> emptySessions = Collections.emptyList();
-
-        // When
-        List<SessionDto> result = sessionMapper.toDto(emptySessions);
-
-        // Then
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
-    }
-
-    @Test
-    void toEntity_WithEmptyList_ShouldReturnEmptyList() {
-        // Given
-        List<SessionDto> emptySessionDtos = Collections.emptyList();
-
-        // When
-        List<Session> result = sessionMapper.toEntity(emptySessionDtos);
-
-        // Then
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
-    }
-
-    @Test
-    void toDto_WithNullList_ShouldReturnNull() {
-        // When
-        List<SessionDto> result = sessionMapper.toDto((List<Session>) null);
+        SessionDto result = sessionMapper.toDto((Session) null);
 
         // Then
         assertNull(result);
     }
 
     @Test
-    void toEntity_WithNullList_ShouldReturnNull() {
+    void toEntity_WithNullSessionDto_ShouldReturnNull() {
         // When
-        List<Session> result = sessionMapper.toEntity((List<SessionDto>) null);
+        Session result = sessionMapper.toEntity((SessionDto) null);
 
         // Then
         assertNull(result);
-    }
-
-    @Test
-    void toDto_WithMultipleSessions_ShouldMapAll() {
-        // Given
-        Session session2 = sessionRepository.findById(2L).orElse(null);
-        List<Session> sessions = Arrays.asList(testSession, session2);
-
-        // When
-        List<SessionDto> result = sessionMapper.toDto(sessions);
-
-        // Then
-        assertNotNull(result);
-        assertEquals(2, result.size());
-        assertEquals(testSession.getId(), result.get(0).getId());
-        assertEquals(session2.getId(), result.get(1).getId());
-    }
-
-    @Test
-    void toEntity_WithMultipleSessionDtos_ShouldMapAll() {
-        // Given
-        SessionDto sessionDto2 = new SessionDto();
-        sessionDto2.setId(2L);
-        sessionDto2.setName("Yoga Hatha");
-        sessionDto2.setDescription("Séance de yoga doux et relaxant.");
-        sessionDto2.setDate(new Date());
-        sessionDto2.setTeacher_id(2L);
-        sessionDto2.setUsers(Arrays.asList(1L));
-
-        List<SessionDto> sessionDtos = Arrays.asList(testSessionDto, sessionDto2);
-
-        // When
-        List<Session> result = sessionMapper.toEntity(sessionDtos);
-
-        // Then
-        assertNotNull(result);
-        assertEquals(2, result.size());
-        assertEquals(testSessionDto.getId(), result.get(0).getId());
-        assertEquals(sessionDto2.getId(), result.get(1).getId());
     }
 
 }
